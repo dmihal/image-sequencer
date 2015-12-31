@@ -1,0 +1,3 @@
+processImage = function(options){
+  return {}
+};

@@ -28,14 +28,15 @@ processImage = function(options){
     next();
   };
   var next = function(){
+    index++;
+
     for (var i = 0; i < progressListeners.length; i++) {
       progressListeners[i]({
         number: index,
         total: options.photos.length
       });
     }
-    if (index + 1 < options.photos.length) {
-      index++;
+    if (index < options.photos.length) {
       drawImage();
     } else {
       ctx.putImageData(blankData, 0, 0);

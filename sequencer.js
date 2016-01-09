@@ -1,17 +1,30 @@
 processImage = function(options){
   var ctx = options.canvas.getContext('2d');
   var reader = new FileReader();
-  var index = 0;
   var img = new Image();
+  var workingCtx = document.createElement('canvas').getContext('2d');
+
+  var index = 0;
+  var width, height, span, blankData;
 
   reader.onloadend = function(){
     img.src = reader.result;
   }
   img.onload = function(){
-    ctx.canvas.width = img.width;
-    ctx.canvas.height = img.height;
+    if (index == 0) {
+      ctx.canvas.width = workingCtx.canvas.width = width = img.width;
+      ctx.canvas.height = workingCtx.canvas.height = height = img.height;
+      blankData = ctx.createImageData(width, height);
+      span = Math.ceil(width / (options.photos.length - 1));
+    }
 
-    ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    workingCtx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    for (var col = 0; col < width; col++) {
+      var alpha = getPixelAlpha(col, index, span);
+      if (alpha > 0){
+        drawCol(col, alpha);
+      }
+    }
     done();
   };
   var done = function(){
@@ -19,13 +32,31 @@ processImage = function(options){
       index++;
       drawImage();
     } else {
+      ctx.putImageData(blankData, 0, 0);
       console.log("done");
     }
   };
-
   var drawImage = function(){
     reader.readAsDataURL(options.photos[index]);
   };
-  drawImage(0);
+  var drawCol = function(col, alpha){
+    var data = workingCtx.getImageData(col, 0, 1, height).data;
+    for (var row = 0; row < height; row++) {
+      var ptr = row * 4;
+      var bigPtr = (col + (row * width)) * 4;
+      blankData.data[bigPtr]     += Math.floor(alpha * data[ptr]);     // red
+      blankData.data[bigPtr + 1] += Math.floor(alpha * data[ptr + 1]); // green
+      blankData.data[bigPtr + 2] += Math.floor(alpha * data[ptr + 2]); // blue
+      blankData.data[bigPtr + 3] = 255;
+    }
+  };
+
+  var getPixelAlpha = function(column, index, span){
+    var fullColumn = index * span;
+    var val = 1 - Math.abs((column - fullColumn) / span);
+    return val >= 0 ? val : 0;
+  };
+
+  drawImage();
   return {}
 };

@@ -5,6 +5,7 @@ processImage = function(options){
   var workingCtx = document.createElement('canvas').getContext('2d');
 
   var index = 0;
+  var stretch = options.stretch || 1;
   var width, height, span, blankData;
 
   reader.onloadend = function(){
@@ -18,9 +19,11 @@ processImage = function(options){
       span = Math.ceil(width / (options.photos.length - 1));
     }
 
+    var middleCol = index * span;
+
     workingCtx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
     for (var col = 0; col < width; col++) {
-      var alpha = getPixelAlpha(col, index, span);
+      var alpha = getPixelAlpha(col, middleCol, span * stretch) / stretch;
       if (alpha > 0){
         drawCol(col, alpha);
       }
@@ -58,9 +61,8 @@ processImage = function(options){
     }
   };
 
-  var getPixelAlpha = function(column, index, span){
-    var fullColumn = index * span;
-    var val = 1 - Math.abs((column - fullColumn) / span);
+  var getPixelAlpha = function(column, middleCol, span){
+    var val = 1 - Math.abs((column - middleCol) / span);
     return val >= 0 ? val : 0;
   };
 

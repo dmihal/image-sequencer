@@ -1,6 +1,7 @@
 var photoCanvas = document.getElementById('photo');
 var progressBar = document.querySelector('progress');
 var processBtn = document.getElementById('processBtn');
+var stretchInput = document.getElementById('stretch');
 var files = null;
 
 document.body.addEventListener('dragover', function(e){
@@ -16,6 +17,7 @@ document.body.addEventListener('drop', function(e){
 processBtn.addEventListener('click', function(e){
   var process = processImage({
     canvas: photoCanvas,
+    stretch: stretchInput.value|0,
     photos: files
   });
   process.addProgressListener(function(progress){

@@ -25,9 +25,15 @@ processImage = function(options){
         drawCol(col, alpha);
       }
     }
-    done();
+    next();
   };
-  var done = function(){
+  var next = function(){
+    for (var i = 0; i < progressListeners.length; i++) {
+      progressListeners[i]({
+        number: index,
+        total: options.photos.length
+      });
+    }
     if (index + 1 < options.photos.length) {
       index++;
       drawImage();
@@ -58,5 +64,9 @@ processImage = function(options){
   };
 
   drawImage();
-  return {}
+
+  var progressListeners = [];
+  return {
+    addProgressListener: Array.prototype.push.bind(progressListeners)
+  };
 };

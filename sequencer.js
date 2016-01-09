@@ -1,8 +1,7 @@
 processImage = function(options){
-  var ctx = options.canvas.getContext('2d');
   var reader = new FileReader();
   var img = new Image();
-  var workingCtx = document.createElement('canvas').getContext('2d');
+  var ctx = document.createElement('canvas').getContext('2d');
 
   var index = 0;
   var stretch = options.stretch || 1;
@@ -13,15 +12,15 @@ processImage = function(options){
   }
   img.onload = function(){
     if (index == 0) {
-      ctx.canvas.width = workingCtx.canvas.width = width = img.width;
-      ctx.canvas.height = workingCtx.canvas.height = height = img.height;
+      ctx.canvas.width = width = img.width;
+      ctx.canvas.height = height = img.height;
       blankData = ctx.createImageData(width, height);
       span = Math.ceil(width / (options.photos.length - 1));
     }
 
     var middleCol = index * span;
 
-    workingCtx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
     for (var col = 0; col < width; col++) {
       var alpha = getPixelAlpha(col, middleCol, span * stretch) / stretch;
       if (alpha > 0){
@@ -43,6 +42,8 @@ processImage = function(options){
       drawImage();
     } else {
       ctx.putImageData(blankData, 0, 0);
+      var url = ctx.canvas.toDataURL("image/jpeg");
+      options.img.src = url;
       console.log("done");
     }
   };
@@ -50,7 +51,7 @@ processImage = function(options){
     reader.readAsDataURL(options.photos[index]);
   };
   var drawCol = function(col, alpha){
-    var data = workingCtx.getImageData(col, 0, 1, height).data;
+    var data = ctx.getImageData(col, 0, 1, height).data;
     for (var row = 0; row < height; row++) {
       var ptr = row * 4;
       var bigPtr = (col + (row * width)) * 4;

@@ -1,3 +1,5 @@
+var photoCanvas = document.getElementById('photo');
+
 document.body.addEventListener('dragover', function(e){
   e.preventDefault();
 });
@@ -5,5 +7,8 @@ document.body.addEventListener('dragover', function(e){
 document.body.addEventListener('drop', function(e){
   e.preventDefault();
   var files = e.dataTransfer.files;
-  console.log(files);
+  processImage({
+    canvas: photoCanvas,
+    photos: files
+  });
 });
